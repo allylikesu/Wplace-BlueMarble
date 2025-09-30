@@ -82,8 +82,16 @@ export default class ApiManager {
           const coordsTile = data['endpoint'].split('?')[0].split('/').filter(s => s && !isNaN(Number(s))); // Retrieves the tile coords as [x, y]
           const payloadExtractor = new URLSearchParams(data['endpoint'].split('?')[1]); // Declares a new payload deconstructor and passes in the fetch request payload
           const coordsPixel = [payloadExtractor.get('x'), payloadExtractor.get('y')]; // Retrieves the deconstructed pixel coords from the payload
-          const absoluteX = coordsTile[0] * 1000 + coordsPixel[0];
-          const absoluteY = coordsTile[1] * 1000 + coordsPixel[1];
+          const absoluteX = coordsTile[0] * 1000 + parseInt(coordsPixel[0]);
+          const absoluteY = coordsTile[1] * 1000 + parseInt(coordsPixel[1]);
+          let degreeAbsX = absoluteX - 1024000
+          if (absoluteX < 1024000) {
+            degreeAbsX = absoluteX + 1024000
+          }
+          let degreeAbsY = absoluteY - 1024000
+          if (absoluteY < 1024000) {
+            degreeAbsY = absoluteY + 1024000
+          }
           
           // Don't save the coords if there are previous coords that could be used
           if (this.coordsTilePixel.length && (!coordsTile.length || !coordsPixel.length)) {
@@ -102,7 +110,7 @@ export default class ApiManager {
 
               let displayCoords = document.querySelector('#bm-display-coords'); // Find the additional pixel coords span
 
-              const text = `(Tl X: ${coordsTile[0]}, Tl Y: ${coordsTile[1]}, Px X: ${coordsPixel[0]}, Px Y: ${coordsPixel[1]})\nAbs X: ${absoluteX}, Abs Y: ${absoluteY}`;
+              const text = `Tl ${coordsTile[0]}, ${coordsTile[1]}; Px ${coordsPixel[0]}, ${coordsPixel[1]};\nAbs ${absoluteX}, ${absoluteY}; Deg Abs ${degreeAbsX}, ${degreeAbsY}`;
               
               // If we could not find the addition coord span, we make it then update the textContent with the new coords
               if (!displayCoords) {
